@@ -1,6 +1,6 @@
 # cover_two
 
-Defensive security tool for IP address blocking.
+defensive security tool for IP address blocking.
 
 ## File Structure
 
