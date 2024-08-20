@@ -1,0 +1,20 @@
+# EXAMPLE
+#
+# PF configuration file.
+#
+# This file contains the main ruleset, which gets automatically loaded
+#
+# com.apple anchor points
+#
+scrub-anchor "com.apple/*"
+nat-anchor "com.apple/*"
+rdr-anchor "com.apple/*"
+dummynet-anchor "com.apple/*"
+anchor "com.apple/*"
+load anchor "com.apple" from "/etc/pf.anchors/com.apple"
+#
+# User-defined rules and tables.
+#
+table <blocked> persist
+block drop from <blocked> to any
+block drop from any to <blocked>

@@ -1,0 +1,13 @@
+# EXAMPLE
+#
+# Packet Firewall | Blocked IPs
+#
+# If you list it, it will be blocked. 
+# So don't block stuff that shouldn't be blocked.
+#
+1.1.1.1 # cloudflare
+8.8.8.8 # google
+54.155.246.232 # netflix
+142.250.187.206 # youtube
+151.101.128.81 # bbc uk
+208.67.222.222 # opendns
