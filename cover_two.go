@@ -21,30 +21,6 @@ const (
 // FetchBlockedIPs fetches the blocked IPs from the server
 func FetchBlockedIPs() (string, error) {
     client := &http.Client{Timeout: httpTimeout}
-"pf_updater.go" 99L, 2944B
-package main
-
-import (
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-    "os/exec"
-    "time"
-)
-
-// Constants for the server URL and file paths
-const (
-    serverURL     = "http://localhost:8080/blocked_ips" // Replace with your server URL
-    blockedFile   = "/etc/pf.blocked"
-    pfScript      = "/usr/local/bin/reload_pf.sh"
-    checkInterval = 1 * time.Minute // Check every 1 minute
-    httpTimeout   = 10 * time.Second // Timeout for HTTP requests
-)
-
-// FetchBlockedIPs fetches the blocked IPs from the server
-func FetchBlockedIPs() (string, error) {
-    client := &http.Client{Timeout: httpTimeout}
     resp, err := client.Get(serverURL)
     if err != nil {
         return "", fmt.Errorf("error fetching blocked IPs: %v", err)
