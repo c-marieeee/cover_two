@@ -6,14 +6,15 @@ import (
     "log"
     "net/http"
     "os/exec"
+    "strings"
     "time"
 )
 
 // Constants for the server URL and file paths
 const (
     serverURL     = "http://localhost:8080/blocked_ips" // Replace with your server URL
-    blockedFile   = "/etc/pf.blocked.example" // Replace with your actual pf.blocked file
-    pfConfFile    = "/etc/pf.conf.example" // Replace with your actual pf.conf file
+    blockedFile   = "/etc/pf.blocked.example" // Replace with your pf.blocked file
+    pfConfFile    = "/etc/pf.conf" // Replace with your pf.conf file
     checkInterval = 1 * time.Minute // Check every 1 minute
     httpTimeout   = 10 * time.Second // Timeout for HTTP requests
 )
@@ -40,10 +41,23 @@ func UpdateBlockedFile(data string) error {
     return ioutil.WriteFile(blockedFile, []byte(data), 0644)
 }
 
-// RunPFScript runs the equivalent of the original bash script
+// RunPFScript checks if PF is enabled, enables it if not, and applies the rules
 func RunPFScript() error {
+    // Check if PF is already enabled
+    cmd := exec.Command("pfctl", "-s", "info")
+    output, err := cmd.CombinedOutput()
+    if err != nil {
+        return fmt.Errorf("error checking pf status: %v", err)
+    }
+
+    if !contains(output, "Status: Enabled") {
+        err := exec.Command("sudo", "pfctl", "-e").Run()
+        if err != nil {
+            return fmt.Errorf("error enabling pf: %v", err)
+        }
+    }
+
     commands := []string{
-        "pfctl -e",
         fmt.Sprintf("pfctl -f %s", pfConfFile),
         fmt.Sprintf("pfctl -t blocked -T replace -f %s", blockedFile),
     }
@@ -56,6 +70,11 @@ func RunPFScript() error {
     }
 
     return nil
+}
+
+// Helper function to check if the PF status output contains a specific substring
+func contains(output []byte, substring string) bool {
+    return strings.Contains(string(output), substring)
 }
 
 func logWithTimestamp(message string) {
@@ -83,13 +102,13 @@ func main() {
         }
         logWithTimestamp("Updated blocked file successfully.")
 
-        // Run the pf commands directly from Go
+        // Run the pf script directly from Go
         if err := RunPFScript(); err != nil {
             logWithTimestamp(fmt.Sprintf("Error running pf script: %v", err))
             time.Sleep(checkInterval)
             continue
         }
-        logWithTimestamp("Ran check-in successfully.")
+        logWithTimestamp("Ran check-in  successfully.")
 
         // Wait for the next check-in with a countdown timer
         logWithTimestamp("Check-in completed.")
